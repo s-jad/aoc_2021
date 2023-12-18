@@ -2,36 +2,31 @@ use itertools::Itertools;
 use std::time::Instant;
 
 fn process(input: &str) -> usize {
-    let mut fishies = input
+    let mut day_arr = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    let fishies = input
         .split_terminator(&[',', '\n'][..])
-        .map(|s| s.parse::<i8>().expect("number"))
+        .map(|s| s.parse::<usize>().expect("number"))
         .collect_vec();
-    let mut new_fish: Vec<u8> = Vec::new();
 
-    let mut day_count = 80;
-
-    while day_count != 0 {
-        for fish in fishies.iter_mut() {
-            *fish = (*fish - 1).rem_euclid(7);
-            if fish == &0 {
-                new_fish.push(10);
-            }
-        }
-
-        let new_fish_len = new_fish.len();
-        for idx in 0..new_fish_len {
-            new_fish[idx] = new_fish[idx] - 1;
-
-            if new_fish[idx] == 6 {
-                fishies.push(6);
-            }
-        }
-        new_fish = new_fish.into_iter().filter(|f| f > &6).collect_vec();
-
-        day_count -= 1;
+    for fish in fishies {
+        day_arr[fish] += 1;
     }
 
-    fishies.len() + new_fish.iter().filter(|f| f < &&9).count()
+    let total_days = 80;
+
+    for _ in 0..total_days {
+        let fish_ready_to_reproduce = day_arr[0];
+
+        for j in 0..8 {
+            day_arr[j] = day_arr[j + 1];
+        }
+
+        day_arr[6] += fish_ready_to_reproduce;
+        day_arr[8] = fish_ready_to_reproduce;
+    }
+
+    day_arr.iter().sum()
 }
 
 fn main() {
