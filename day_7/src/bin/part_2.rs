@@ -2,13 +2,13 @@ use itertools::Itertools;
 use std::time::Instant;
 
 fn process(input: &str) -> usize {
-    let mut crab_pos = input
+    let crab_pos = input
         .split_terminator(&[',', '\n'][..])
-        .map(|s| s.parse::<usize>().expect("num"))
+        .map(|s| s.parse::<isize>().expect("num"))
         .collect_vec();
 
     let crab_len = crab_pos.len();
-    let mean = (crab_pos.iter().sum::<usize>() as f64 / crab_len as f64).ceil() as usize;
+    let mean = (crab_pos.iter().sum::<isize>() as f64 / crab_len as f64).ceil() as isize;
 
     let mut final_total: f64 = 999999999f64;
 
@@ -16,8 +16,7 @@ fn process(input: &str) -> usize {
         let total = crab_pos
             .iter()
             .map(move |c| {
-                ((*c as isize - (mean as isize + i) as isize).abs() as f64 / 2f64)
-                    * (1f64 + (*c as isize - (mean as isize + i) as isize).abs() as f64)
+                ((*c - (mean + i)).abs() as f64 / 2f64) * (1f64 + (*c - (mean + i)).abs() as f64)
             })
             .sum::<f64>();
 
