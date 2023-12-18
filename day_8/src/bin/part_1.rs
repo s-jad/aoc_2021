@@ -10,8 +10,6 @@ fn process(input: &str) -> usize {
                 .expect("is tuple")
                 .1
         })
-        .collect_vec()
-        .into_iter()
         .flat_map(|s| s.split_terminator(" ").collect_vec())
         .filter(|s| s.len() != 5 && s.len() != 6)
         .count()
