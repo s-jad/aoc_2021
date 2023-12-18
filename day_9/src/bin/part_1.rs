@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use std::time::Instant;
 
-fn get_neighbour(grid: &Vec<Vec<usize>>, x: usize, y: usize) -> [Option<usize>; 4] {
+fn get_neighbour(grid: &[[usize; 100]; 100], x: usize, y: usize) -> [Option<usize>; 4] {
     let dx = [-1, 0, 1, 0];
     let dy = [0, 1, 0, -1];
 
@@ -20,14 +20,20 @@ fn get_neighbour(grid: &Vec<Vec<usize>>, x: usize, y: usize) -> [Option<usize>; 
 }
 
 fn process(input: &str) -> usize {
-    let grid: Vec<Vec<usize>> = input
+    let grid: [[usize; 100]; 100] = input
         .lines()
-        .map(move |l| {
+        .map(|l| {
             l.chars()
                 .map(|c| c.to_digit(10).expect("should be digit") as usize)
-                .collect_vec()
+                .collect::<Vec<usize>>()
+                .as_slice()
+                .try_into()
+                .unwrap()
         })
-        .collect_vec();
+        .collect::<Vec<[usize; 100]>>()
+        .as_slice()
+        .try_into()
+        .unwrap();
 
     let mut local_minimums = Vec::new();
     for x in 0..grid.len() {
