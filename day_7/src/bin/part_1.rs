@@ -1,28 +1,26 @@
 use itertools::Itertools;
-use std::{time::Instant, usize::MAX};
+use std::time::Instant;
 
 fn process(input: &str) -> usize {
-    let crab_pos = input
+    let mut crab_pos = input
         .split_terminator(&[',', '\n'][..])
         .map(|s| s.parse::<usize>().expect("num"))
         .collect_vec();
 
+    crab_pos.sort();
     let crab_len = crab_pos.len();
-    let avg = (crab_pos.iter().sum::<usize>() as f64 / crab_len as f64).ceil() as usize;
+    let median = if crab_len % 2 == 1 {
+        crab_pos[crab_len / 2]
+    } else {
+        (crab_pos[crab_len / 2 - 1] + crab_pos[crab_len / 2]) / 2
+    };
 
-    let mut best_cost = MAX;
-    for i in (avg - (crab_len / 6) as usize)..(avg + (crab_len / 6) as usize) {
-        let total_cost: usize = crab_pos
-            .iter()
-            .map(move |c| (*c as isize - i as isize).abs() as usize)
-            .sum();
+    println!("median => {:?}", median);
 
-        if total_cost < best_cost {
-            best_cost = total_cost;
-        }
-    }
-
-    best_cost
+    crab_pos
+        .iter()
+        .map(move |c| (*c as isize - median as isize).abs() as usize)
+        .sum()
 }
 
 fn main() {
