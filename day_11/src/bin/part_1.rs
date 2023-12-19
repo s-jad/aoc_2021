@@ -4,15 +4,15 @@ use std::{collections::HashSet, time::Instant};
 fn induce_neighbours(
     (x, y): (isize, isize),
     coords: &mut HashSet<(isize, isize)>,
-    octopii: &mut Vec<Vec<u8>>,
-    checked: &mut Vec<(isize, isize)>,
+    octopii: &mut [[u8; 10]; 10],
+    flashed: &mut HashSet<(isize, isize)>,
 ) -> isize {
-    if !coords.remove(&(x, y)) || checked.contains(&(x, y)) {
+    if !coords.remove(&(x, y)) || flashed.contains(&(x, y)) {
         return 0;
     }
 
     if octopii[y as usize][x as usize] >= 9 {
-        checked.push((x, y));
+        flashed.insert((x, y));
     }
 
     1 + [
@@ -27,15 +27,11 @@ fn induce_neighbours(
     ]
     .iter_mut()
     .map(|&mut (x, y)| {
-        if let Some(row) = octopii.get_mut(y as usize) {
-            if let Some(value) = row.get_mut(x as usize) {
-                *value = *value + 1;
-                if *value >= 9 {
-                    coords.insert((x, y));
-                    induce_neighbours((x, y), coords, octopii, checked)
-                } else {
-                    0
-                }
+        if x >= 0 && x < 10 && y >= 0 && y < 10 {
+            octopii[y as usize][x as usize] += 1;
+            if octopii[y as usize][x as usize] >= 9 {
+                coords.insert((x, y));
+                induce_neighbours((x, y), coords, octopii, flashed)
             } else {
                 0
             }
@@ -47,27 +43,34 @@ fn induce_neighbours(
 }
 
 fn process(input: &str) -> isize {
-    let mut octopii = input
+    let mut octopii: [[u8; 10]; 10] = input
         .lines()
-        .map(|l| l.bytes().map(|c| c - b'0').collect_vec())
-        .collect_vec();
+        .map(|l| {
+            l.bytes()
+                .map(|c| c - b'0')
+                .collect_vec()
+                .as_slice()
+                .try_into()
+                .unwrap()
+        })
+        .collect_vec()
+        .as_slice()
+        .try_into()
+        .unwrap();
 
     let mut total_flashes = 0;
-    let mut checked = vec![];
+    let mut flashed = HashSet::new();
 
     for _ in 1..100 {
-        octopii = octopii
-            .into_iter()
-            .map(|l| l.into_iter().map(|n| n + 1).collect_vec())
-            .collect_vec();
-
-        for (x, y) in &checked {
-            if octopii[*y as usize][*x as usize] >= 9 {
-                octopii[*y as usize][*x as usize] = 0;
-            }
+        for (x, y) in (0..10).cartesian_product(0..10) {
+            octopii[y][x] += 1;
         }
 
-        checked.drain(..);
+        for (x, y) in &flashed {
+            octopii[*y as usize][*x as usize] = 0;
+        }
+
+        flashed.drain();
 
         let mut points = (0..octopii[0].len())
             .cartesian_product(0..octopii.len())
@@ -76,7 +79,7 @@ fn process(input: &str) -> isize {
             .collect::<HashSet<(isize, isize)>>();
 
         while let Some(&p) = points.iter().next() {
-            total_flashes += induce_neighbours(p, &mut points, &mut octopii, &mut checked);
+            total_flashes += induce_neighbours(p, &mut points, &mut octopii, &mut flashed);
         }
     }
 
