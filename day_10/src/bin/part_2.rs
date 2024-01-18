@@ -2,22 +2,19 @@ use itertools::Itertools;
 use std::time::Instant;
 
 fn process(input: &str) -> usize {
-    let chunks = input
-        .lines()
-        .map(|l| l.trim().chars().collect_vec())
-        .collect_vec();
+    let chunks = input.lines().map(|l| l.trim()).collect_vec();
 
     let mut totals = Vec::new();
 
     for chunk in chunks.iter() {
         let mut stack = Vec::new();
         let mut corrupted = false;
-        for c in chunk.iter() {
+        for c in chunk.chars() {
             match c {
                 '<' | '[' | '(' | '{' => stack.push(c),
                 _ => {
                     let opening = stack.pop().unwrap();
-                    if ((*opening as u8) as i32 - (*c as u8) as i32).abs() > 3 {
+                    if ((opening as u8) as i32 - (c as u8) as i32).abs() > 3 {
                         corrupted = true;
                     }
                 }

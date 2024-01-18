@@ -2,40 +2,37 @@ use itertools::Itertools;
 use std::time::Instant;
 
 fn process(input: &str) -> usize {
-    let chunks = input
-        .lines()
-        .map(|l| l.trim().chars().collect_vec())
-        .collect_vec();
+    let chunks = input.lines().map(|l| l.trim()).collect_vec();
 
     let mut stack = Vec::new();
 
     let mut corrupted = 0;
 
     for chunk in chunks.iter() {
-        for c in chunk.iter() {
+        for c in chunk.chars() {
             match c {
                 '<' | '[' | '(' | '{' => stack.push(c),
                 ')' => {
                     let opening = stack.pop().unwrap();
-                    if ((*opening as u8) as i32 - (*c as u8) as i32).abs() > 3 {
+                    if ((opening as u8) as i32 - (c as u8) as i32).abs() > 3 {
                         corrupted += 3;
                     }
                 }
                 ']' => {
                     let opening = stack.pop().unwrap();
-                    if ((*opening as u8) as i32 - (*c as u8) as i32).abs() > 3 {
+                    if ((opening as u8) as i32 - (c as u8) as i32).abs() > 3 {
                         corrupted += 57;
                     }
                 }
                 '}' => {
                     let opening = stack.pop().unwrap();
-                    if ((*opening as u8) as i32 - (*c as u8) as i32).abs() > 3 {
+                    if ((opening as u8) as i32 - (c as u8) as i32).abs() > 3 {
                         corrupted += 1197;
                     }
                 }
                 '>' => {
                     let opening = stack.pop().unwrap();
-                    if ((*opening as u8) as i32 - (*c as u8) as i32).abs() > 3 {
+                    if ((opening as u8) as i32 - (c as u8) as i32).abs() > 3 {
                         corrupted += 25137;
                     }
                 }
